@@ -1,0 +1,51 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>Service Desk Dashboard</title>
+    <link rel="stylesheet" href="/static/style.css">
+    <meta http-equiv="refresh" content="30">
+  </head>
+  <body>
+    <div class="container">
+      <nav class="top-nav">
+        <a href="/">Dashboard</a> • 
+        <a href="/tickets">Tickets</a> • 
+        <a href="/analytics">Analytics</a> • 
+        <a href="/new-ticket">New Ticket</a> • 
+        <a href="/settings">Settings</a>
+      </nav>
+
+      <h1>🎫 Service Desk Dashboard</h1>
+      
+      <div class="cards">
+        <div class="card">Total Tickets<br><strong>{{ stats.total }}</strong></div>
+        <div class="card">Open Tickets<br><strong>{{ stats.open }}</strong></div>
+        <div class="card">Resolved<br><strong>{{ stats.resolved }}</strong></div>
+      </div>
+
+      <h2>📊 SLA Compliance</h2>
+      <div class="cards">
+        <div class="card {% if sla.compliance_rate >= 90 %}card-green{% elif sla.compliance_rate >= 70 %}card-yellow{% else %}card-red{% endif %}">
+          Compliance Rate<br><strong>{{ sla.compliance_rate }}%</strong>
+        </div>
+        <div class="card">Compliant<br><strong>{{ sla.compliant }}</strong></div>
+        <div class="card card-yellow">At Risk<br><strong>{{ sla.at_risk }}</strong></div>
+        <div class="card card-red">Breached<br><strong>{{ sla.breached }}</strong></div>
+      </div>
+
+      <h2>🔧 Automation</h2>
+      <div class="actions">
+        <a href="/process" class="btn">▶ Process Emails Now</a>
+        <a href="/api/sla/check" class="btn btn-secondary">🔍 Run SLA Check</a>
+        <a href="/api/status" class="btn btn-secondary">📡 API Status</a>
+      </div>
+
+      <div class="quick-links">
+        <a href="/tickets">View All Tickets</a> • 
+        <a href="/new-ticket">Create Ticket</a> • 
+        <a href="/api/tickets">API: Tickets JSON</a>
+      </div>
+    </div>
+  </body>
+</html>

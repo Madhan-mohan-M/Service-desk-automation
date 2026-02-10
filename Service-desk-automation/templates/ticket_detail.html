@@ -1,0 +1,65 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>Ticket #{{ ticket.id }} - Service Desk</title>
+    <link rel="stylesheet" href="/static/style.css">
+  </head>
+  <body>
+    <div class="container">
+      <nav class="top-nav">
+        <a href="/">Dashboard</a> • 
+        <a href="/tickets">Tickets</a> • 
+        <a href="/analytics">Analytics</a> • 
+        <a href="/new-ticket">New Ticket</a> • 
+        <a href="/settings">Settings</a>
+      </nav>
+
+      <h1>🎫 Ticket #{{ ticket.id }}</h1>
+      
+      <div class="ticket-header">
+        <span class="priority-{{ ticket.priority|lower }}">{{ ticket.priority }} Priority</span>
+        <span class="status-{{ ticket.status|lower }}">{{ ticket.status }}</span>
+        {% if ticket.sla.breached %}
+          <span class="sla-breach">⚠ SLA BREACHED</span>
+        {% elif not ticket.sla.resolution_ok %}
+          <span class="sla-warning">⚡ SLA At Risk</span>
+        {% else %}
+          <span class="sla-ok">✓ Within SLA</span>
+        {% endif %}
+      </div>
+
+      <div class="ticket-details">
+        <table class="detail-table">
+          <tr><th>Issue:</th><td>{{ ticket.issue }}</td></tr>
+          <tr><th>Category:</th><td><span class="badge">{{ ticket.category }}</span></td></tr>
+          <tr><th>Sender:</th><td>{{ ticket.sender }}</td></tr>
+          <tr><th>Assigned To:</th><td>{{ ticket.assigned_to or 'Unassigned' }}</td></tr>
+          <tr><th>Created:</th><td>{{ ticket.created_at }}</td></tr>
+          <tr><th>Updated:</th><td>{{ ticket.updated_at or ticket.created_at }}</td></tr>
+          <tr><th>Response Due:</th><td>{{ ticket.sla.response_due[:16] }}</td></tr>
+          <tr><th>Resolution Due:</th><td>{{ ticket.sla.resolution_due[:16] }}</td></tr>
+        </table>
+      </div>
+
+      <div class="ticket-actions">
+        <h3>Actions</h3>
+        {% if ticket.status != 'Closed' %}
+          <a href="/api/ticket/{{ ticket.id }}/resolve" class="btn btn-success" onclick="return confirm('Resolve this ticket?')">✓ Resolve</a>
+          <a href="/api/ticket/{{ ticket.id }}/escalate" class="btn btn-danger" onclick="return confirm('Escalate this ticket?')">⬆ Escalate</a>
+        {% else %}
+          <a href="/api/ticket/{{ ticket.id }}/reopen" class="btn" onclick="return confirm('Reopen this ticket?')">↺ Reopen</a>
+        {% endif %}
+        <a href="/tickets" class="btn btn-secondary">← Back to List</a>
+      </div>
+
+      <div class="panel" style="margin-top:24px;">
+        <h3>SLA Information</h3>
+        <ul>
+          <li>Response SLA: {% if ticket.sla.response_ok %}✓ Met{% else %}✗ Missed{% endif %}</li>
+          <li>Resolution SLA: {% if ticket.sla.resolution_ok %}✓ On Track{% else %}✗ Breached{% endif %}</li>
+        </ul>
+      </div>
+    </div>
+  </body>
+</html>

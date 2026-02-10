@@ -1,0 +1,119 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>Settings - Service Desk</title>
+    <link rel="stylesheet" href="/static/style.css">
+  </head>
+  <body>
+    <div class="container">
+      <nav class="top-nav">
+        <a href="/">Dashboard</a> • 
+        <a href="/tickets">Tickets</a> • 
+        <a href="/analytics">Analytics</a> • 
+        <a href="/new-ticket">New Ticket</a> • 
+        <a href="/settings">Settings</a>
+      </nav>
+
+      <h1>⚙️ Settings & Configuration</h1>
+
+      <div class="grid">
+        <div class="panel">
+          <h3>System Status</h3>
+          <table class="detail-table">
+            <tr><th>Demo Mode:</th><td>{{ 'Enabled' if config.DEMO_MODE else 'Disabled' }}</td></tr>
+            <tr><th>Auto Process:</th><td>{{ 'Enabled' if config.AUTO_PROCESS_ENABLED else 'Disabled' }}</td></tr>
+            <tr><th>Poll Interval:</th><td>{{ config.POLL_INTERVAL_SECONDS }} seconds</td></tr>
+          </table>
+          <p><a href="/api/status" class="btn btn-secondary">View Full API Status</a></p>
+        </div>
+
+        <div class="panel">
+          <h3>O365 Integration</h3>
+          <table class="detail-table">
+            <tr><th>Graph API:</th><td>{{ 'Configured' if config.GRAPH_CLIENT_ID else 'Not Configured' }}</td></tr>
+            <tr><th>Mailbox:</th><td>{{ config.GRAPH_USER_EMAIL or 'Not Set' }}</td></tr>
+            <tr><th>SMTP:</th><td>{{ config.SMTP_SERVER }}:{{ config.SMTP_PORT }}</td></tr>
+          </table>
+        </div>
+      </div>
+
+      <div class="panel">
+        <h3>Team Assignments</h3>
+        <p>Tickets are auto-assigned based on category:</p>
+        <table>
+          <thead>
+            <tr><th>Category</th><th>Assigned To</th></tr>
+          </thead>
+          <tbody>
+            {% for cat, email in teams.items() %}
+            <tr><td><span class="badge">{{ cat }}</span></td><td>{{ email }}</td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+
+      <div class="grid">
+        <div class="panel">
+          <h3>SLA Response Times (hours)</h3>
+          <table class="detail-table">
+            {% for prio, hours in sla_response.items() %}
+            <tr><th class="priority-{{ prio|lower }}">{{ prio }}:</th><td>{{ hours }} hours</td></tr>
+            {% endfor %}
+          </table>
+        </div>
+
+        <div class="panel">
+          <h3>SLA Resolution Times (hours)</h3>
+          <table class="detail-table">
+            {% for prio, hours in sla_resolution.items() %}
+            <tr><th class="priority-{{ prio|lower }}">{{ prio }}:</th><td>{{ hours }} hours</td></tr>
+            {% endfor %}
+          </table>
+        </div>
+      </div>
+
+      <div class="panel">
+        <h3>Maintenance Actions</h3>
+        <div class="actions">
+          <a href="/process" class="btn">▶ Process Emails Now</a>
+          <a href="/api/sla/check" class="btn btn-secondary">🔍 Run SLA Check</a>
+          <button onclick="resetProcessed()" class="btn btn-danger">🗑 Reset Processed Emails</button>
+        </div>
+      </div>
+
+      <div class="panel">
+        <h3>API Endpoints</h3>
+        <table>
+          <thead><tr><th>Endpoint</th><th>Method</th><th>Description</th></tr></thead>
+          <tbody>
+            <tr><td><a href="/api/status">/api/status</a></td><td>GET</td><td>System status</td></tr>
+            <tr><td><a href="/api/tickets">/api/tickets</a></td><td>GET</td><td>List all tickets</td></tr>
+            <tr><td><a href="/api/stats">/api/stats</a></td><td>GET</td><td>Dashboard statistics</td></tr>
+            <tr><td><a href="/api/sla">/api/sla</a></td><td>GET</td><td>SLA summary</td></tr>
+            <tr><td><a href="/api/teams">/api/teams</a></td><td>GET</td><td>Team assignments</td></tr>
+            <tr><td>/api/ticket/{id}</td><td>GET</td><td>Ticket details</td></tr>
+            <tr><td>/api/ticket/{id}/resolve</td><td>GET/POST</td><td>Resolve ticket</td></tr>
+            <tr><td>/api/ticket/{id}/escalate</td><td>GET/POST</td><td>Escalate ticket</td></tr>
+            <tr><td>/api/ticket/{id}/reopen</td><td>GET/POST</td><td>Reopen ticket</td></tr>
+            <tr><td>/api/ticket/create</td><td>POST</td><td>Create ticket (JSON)</td></tr>
+            <tr><td>/api/tickets/filter?status=&priority=</td><td>GET</td><td>Filter tickets</td></tr>
+            <tr><td>/api/tickets/search?q=</td><td>GET</td><td>Search tickets</td></tr>
+            <tr><td>/api/emails/add</td><td>POST</td><td>Add test email</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <script>
+    function resetProcessed() {
+      if (confirm('This will allow all emails to be reprocessed. Continue?')) {
+        fetch('/api/reset-processed', {method: 'POST'})
+          .then(r => r.json())
+          .then(d => alert(d.message || d.error))
+          .catch(e => alert('Error: ' + e));
+      }
+    }
+    </script>
+  </body>
+</html>

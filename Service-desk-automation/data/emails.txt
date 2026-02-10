@@ -1,0 +1,5 @@
+alice@example.com|Password reset|Hi, I forgot my password and cannot login. Please reset.
+bob@example.com|Server down|The web server appears to be down and unreachable.
+carol@example.com|Outlook sending issues|I cannot send or receive email in Outlook.
+dan@example.com|Install request|Please install the new time-tracking software.
+man@gmail.com | the server crashed| the hacker infelterated.Naz@gmail.com|decjkbefcefc|ecemnf fcbjkebfkce

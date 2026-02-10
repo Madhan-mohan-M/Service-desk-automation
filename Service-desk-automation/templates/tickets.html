@@ -1,0 +1,97 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>Tickets</title>
+    <link rel="stylesheet" href="/static/style.css">
+  </head>
+  <body>
+    <div class="container">
+      <nav class="top-nav">
+        <a href="/">Dashboard</a> • 
+        <a href="/tickets">Tickets</a> • 
+        <a href="/analytics">Analytics</a> • 
+        <a href="/new-ticket">New Ticket</a> • 
+        <a href="/settings">Settings</a>
+      </nav>
+
+      <h1>🎫 All Tickets</h1>
+      
+      <div class="toolbar">
+        <a href="/new-ticket" class="btn">+ New Ticket</a>
+        <a href="/process" class="btn btn-secondary">▶ Process Emails</a>
+        <span class="search-box">
+          <input type="text" id="searchInput" placeholder="Search tickets..." onkeyup="filterTable()">
+        </span>
+      </div>
+      <table>
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Sender</th>
+            <th>Issue</th>
+            <th>Category</th>
+            <th>Priority</th>
+            <th>Status</th>
+            <th>Assigned To</th>
+            <th>SLA</th>
+            <th>Created</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody id="ticketsTable">
+          {% for t in tickets %}
+          <tr class="{% if t.sla.breached %}row-breached{% elif not t.sla.response_ok %}row-warning{% endif %}">
+            <td><a href="/ticket/{{ t.id }}"><strong>#{{ t.id }}</strong></a></td>
+            <td>{{ t.sender }}</td>
+            <td><a href="/ticket/{{ t.id }}">{{ t.issue }}</a></td>
+            <td><span class="badge">{{ t.category }}</span></td>
+            <td><span class="priority-{{ t.priority|lower }}">{{ t.priority }}</span></td>
+            <td><span class="status-{{ t.status|lower }}">{{ t.status }}</span></td>
+            <td>{{ t.assigned_to or '-' }}</td>
+            <td>
+              {% if t.sla.breached %}
+                <span class="sla-breach">⚠ BREACHED</span>
+              {% elif not t.sla.resolution_ok %}
+                <span class="sla-warning">⚡ At Risk</span>
+              {% else %}
+                <span class="sla-ok">✓ OK</span>
+              {% endif %}
+            </td>
+            <td>{{ t.created_at[:16] }}</td>
+            <td class="actions-cell">
+              {% if t.status != 'Closed' %}
+              <a href="/api/ticket/{{ t.id }}/resolve" class="btn-sm btn-success" onclick="return confirm('Resolve this ticket?')">✓</a>
+              <a href="/api/ticket/{{ t.id }}/escalate" class="btn-sm btn-danger" onclick="return confirm('Escalate this ticket?')">⬆</a>
+              {% else %}
+              <a href="/api/ticket/{{ t.id }}/reopen" class="btn-sm" onclick="return confirm('Reopen this ticket?')">↺</a>
+              {% endif %}
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+
+    <script>
+    function filterTable() {
+      const input = document.getElementById('searchInput');
+      const filter = input.value.toLowerCase();
+      const table = document.getElementById('ticketsTable');
+      const rows = table.getElementsByTagName('tr');
+      
+      for (let i = 0; i < rows.length; i++) {
+        const cells = rows[i].getElementsByTagName('td');
+        let match = false;
+        for (let j = 0; j < cells.length; j++) {
+          if (cells[j].textContent.toLowerCase().indexOf(filter) > -1) {
+            match = true;
+            break;
+          }
+        }
+        rows[i].style.display = match ? '' : 'none';
+      }
+    }
+    </script>
+  </body>
+</html>

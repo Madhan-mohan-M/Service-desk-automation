@@ -1,0 +1,60 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>Analytics</title>
+    <link rel="stylesheet" href="/static/style.css">
+  </head>
+  <body>
+    <div class="container">
+      <nav class="top-nav">
+        <a href="/">Dashboard</a> • 
+        <a href="/tickets">Tickets</a> • 
+        <a href="/analytics">Analytics</a> • 
+        <a href="/new-ticket">New Ticket</a> • 
+        <a href="/settings">Settings</a>
+      </nav>
+
+      <h1>📈 Analytics</h1>
+
+      <div class="grid">
+        <div class="panel">
+          <h3>Priority Distribution</h3>
+          <ul class="bar-list">
+            {% for k,v in dist.priority.items() %}
+              <li>
+                <span class="priority-{{ k|lower }}">{{ k }}</span>
+                <div class="bar" style="width: {{ (v / (dist.priority.values()|sum) * 100)|round }}%">{{ v }}</div>
+              </li>
+            {% endfor %}
+          </ul>
+        </div>
+
+        <div class="panel">
+          <h3>Category Distribution</h3>
+          <ul class="bar-list">
+            {% for k,v in dist.category.items() %}
+              <li>
+                <span class="badge">{{ k }}</span>
+                <div class="bar" style="width: {{ (v / (dist.category.values()|sum) * 100)|round }}%">{{ v }}</div>
+              </li>
+            {% endfor %}
+          </ul>
+        </div>
+      </div>
+
+      <div class="panel">
+        <h3>SLA Compliance Summary</h3>
+        <div class="cards">
+          <div class="card {% if sla.compliance_rate >= 90 %}card-green{% elif sla.compliance_rate >= 70 %}card-yellow{% else %}card-red{% endif %}">
+            Compliance Rate<br><strong>{{ sla.compliance_rate }}%</strong>
+          </div>
+          <div class="card">Total<br><strong>{{ sla.total }}</strong></div>
+          <div class="card card-green">Compliant<br><strong>{{ sla.compliant }}</strong></div>
+          <div class="card card-yellow">At Risk<br><strong>{{ sla.at_risk }}</strong></div>
+          <div class="card card-red">Breached<br><strong>{{ sla.breached }}</strong></div>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>

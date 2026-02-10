@@ -1,0 +1,3 @@
+Placeholder: add architecture diagram (architecture.png) for slides.
+
+Suggested: include a simple flow diagram showing Emails -> Processor -> DB -> AutoResolver -> Dashboard
